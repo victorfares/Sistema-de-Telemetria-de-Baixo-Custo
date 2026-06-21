@@ -1,17 +1,17 @@
-# 🚀 STGT - Sistema de Telemetria e Gerenciamento Térmico de Baixo Custo
+# STGT - Sistema de Telemetria e Gerenciamento Térmico de Baixo Custo
 
 ![Badge Status](https://img.shields.io/badge/Status-Em%20Desenvolvimento-green)
 ![Badge Hardware](https://img.shields.io/badge/Hardware-ESP32%20%7C%20OLED%20%7C%20GY--906-blue)
 ![Badge Backend](https://img.shields.io/badge/Backend-Java%2017%20%7C%20Spring%20Boot-brightgreen)
 
-## 📌 Sobre o Projeto
+## Sobre o Projeto
 O **STGT (Sistema de Telemetria e Gerenciamento Térmico)** é uma solução de engenharia desenvolvida pela Equipe Rocket para resolver o problema do "Voo Cego" em foguetemodelismo. Durante o voo, o atrito aerodinâmico e o calor da propulsão (motor KNSB) podem causar falhas catastróficas na eletrônica embarcada (*Thermal Throttling* e derretimento de trilhas).
 
 Utilizando a filosofia **COTS (Commercial Off-The-Shelf)**, este projeto substitui altímetros e sistemas de telemetria comerciais de alto custo por uma arquitetura acessível e de alta performance baseada no microcontrolador ESP32.
 
 ---
 
-## 🏗️ Arquitetura do Sistema
+## Arquitetura do Sistema
 O projeto é dividido em três camadas principais:
 
 1. **Camada Embarcada (Foguete):** Lê a temperatura ambiente e superficial via I2C (Sensor GY-906) e transmite os dados estruturados via rádio frequência (2.4 GHz) em tempo real.
@@ -20,20 +20,20 @@ O projeto é dividido em três camadas principais:
 
 ---
 
-## ⚙️ Como Funciona
+## Como Funciona
 
 ### 1. Comunicação Ponto a Ponto (ESP-NOW)
-* <!-- Comentário Técnico: A comunicação utiliza o protocolo ESP-NOW para o envio de pacotes binários brutos através de uma estrutura de dados contendo a temperatura ambiente, a temperatura superficial e o timestamp do voo em milissegundos, garantindo uma amostragem de alta velocidade sem a latência do Wi-Fi convencional. -->
+O envio dos dados utiliza o protocolo ESP-NOW para o tráfego de pacotes binários brutos através de uma estrutura de dados contendo a temperatura ambiente, a temperatura superficial e o timestamp do voo em milissegundos, garantindo velocidade de amostragem sem a latência do Wi-Fi convencional.
 
 ### 2. Tratamento Assíncrono na Base de Solo
-* <!-- Comentário Técnico: A recepção dos pacotes de rádio é feita via interrupção de hardware por uma função de callback dedicada (OnDataRecv). Os dados recebidos são copiados via memória e uma flag booleana é levantada de forma não-bloqueante para que o loop principal atualize a tela OLED sem interromper a escuta do rádio. -->
+A recepção dos pacotes de rádio é feita via interrupção de hardware por uma função de callback dedicada. Os dados recebidos são copiados em memória e um sinalizador booleano é ativado para que o loop principal atualize a tela OLED sem interromper a escuta do rádio.
 
 ### 3. Persistência na API Spring Boot
-* <!-- Comentário Técnico: O Gateway de solo envia os dados estruturados para o Backend através de uma requisição HTTP POST. Um controlador REST intercepta os dados mapeados em um objeto de transferência de dados (DTO), valida as informações e delega a gravação para o repositório JPA, que persiste o histórico de telemetria no banco de dados. -->
+O Gateway de solo envia os dados estruturados para o Backend através de uma requisição HTTP POST. Um controlador REST intercepta os dados mapeados em um objeto de transferência de dados (DTO), valida as informações e delega a gravação para o repositório JPA, que persiste o histórico de telemetria no banco de dados.
 
 ---
 
-## 🛠️ Como Testar e Rodar a Aplicação
+## Como Testar e Rodar a Aplicação
 
 ### Requisitos
 * Java 17+ instalado.
@@ -46,18 +46,14 @@ O projeto é dividido em três camadas principais:
 3. O servidor iniciará na porta `8080` com o banco de dados H2 rodando em memória.
 
 ### Passo 2: Simulando o Foguete no Postman
-* <!-- Comentário de Teste: Configure uma nova requisição do tipo POST para o endpoint da API no endereço local porta 8080 (/api/telemetry). Adicione o cabeçalho de tipo de conteúdo como JSON e envie as propriedades estruturadas com valores numéricos para temperaturaAmbiente, temperaturaSuperficial e timestampVoo. -->
+Configure uma nova requisição do tipo POST para o endpoint da API no endereço local porta 8080 (/api/telemetry). Adicione o cabeçalho de tipo de conteúdo como JSON e envie as propriedades estruturadas com valores numéricos para temperaturaAmbiente, temperaturaSuperficial e timestampVoo.
 
 > **Nota:** Ao realizar o disparo do POST, o servidor retornará o código de status 200 OK e persistirá o registro com o momento exato do recebimento.
 
 ### Passo 3: Consultando o Histórico de Voo
-* <!-- Comentário de Teste: Para verificar os registros armazenados e simular a dashboard reativa do frontend, realize uma requisição do tipo GET para o mesmo endpoint de telemetria para obter a listagem completa dos logs. -->
+Para verificar os registros armazenados e simular a dashboard reativa do frontend, realize uma requisição do tipo GET para o mesmo endpoint de telemetria para obter a listagem completa dos logs.
 
 ### Passo 4: Rodando o Hardware (ESP32)
 1. Vincule o endereço MAC correto do receptor no código do emissor.
 2. Configure as credenciais do Wi-Fi local e informe o IP de rede da máquina servidora no código da base de solo.
 3. Realize o upload dos códigos e inicialize o monitoramento.
-
----
-
-###
